@@ -119,6 +119,7 @@ RUN pip install -r /opt/requirements.txt
 
 ###########################################################################
 
+COPY ./supervisor/supervisord.conf /etc/supervisor/
 
 ARG WORK_DIR=/var/www
 
@@ -128,6 +129,6 @@ WORKDIR ${WORK_DIR}
 
 ###########################################################################
 
-CMD [ "uwsgi" ]
+CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf" ]
 
 expose 9000
