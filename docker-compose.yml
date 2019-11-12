@@ -1,0 +1,83 @@
+version: '2'
+
+services:
+    nginx_todo:
+      build:
+        context: ./nginx
+      volumes:
+        - ${APP_CODE_TODO_PATH_HOST}:${APP_CODE_TODO_PATH_CONTAINER}
+        - ${NGINX_TODO_HOST_LOG_PATH}:/var/log/nginx
+        - ${NGINX_TODO_SITE_PATH}:/etc/nginx/sites-available/todo.conf
+        - ${NGINX_SSL_PATH}:/etc/nginx/ssl
+      ports:
+        - "${NGINX_TODO_HOST_HTTP_PORT}:80"
+        - "${NGINX_TODO_HOST_HTTPS_PORT}:443"
+      depends_on:
+        - todo
+      links:
+        - todo 
+      networks:
+        - frontend
+        - backend
+
+    todo:
+      build:
+        context: ./web
+        args:
+          - INSTALL_GIT=${INSTALL_GIT}
+          - INSTALL_ZIP=${INSTALL_ZIP}
+          - INSTALL_NPM=${INSTALL_NPM}
+          - INSTALL_CRON=${INSTALL_CRON}
+          - WORK_DIR=${APP_CODE_TODO_PATH_CONTAINER}
+          - NODE_VERSION=${NODE_VERSION}
+      volumes:
+        - ./web/cron/crontab_todo:/etc/crontab
+        - ${APP_CODE_TODO_PATH_HOST}:${APP_CODE_TODO_PATH_CONTAINER}   
+      expose:
+        - "9000"
+      depends_on:
+        - db
+        - redis
+      networks:
+        - backend
+
+    db:
+      build:
+        context: ./mysql
+        args:
+          - MYSQL_VERSION=${MYSQL_VERSION}
+      environment:
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        - TZ=${WORKSPACE_TIMEZONE}
+      volumes:
+        - ${DATA_PATH_HOST}/mysql:/var/lib/mysql
+        - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+      ports:
+        - "${MYSQL_PORT}:3306"
+      networks:
+        - backend
+
+    redis:
+      build: ./redis
+      volumes:
+        - ${DATA_PATH_HOST}/redis:/data
+      ports:
+        - "${REDIS_PORT}:6379"
+      networks:
+        - backend            
+
+networks:
+  frontend:
+    driver: ${NETWORKS_DRIVER}
+  backend:
+    driver: ${NETWORKS_DRIVER}
+
+volumes:
+  db:
+    driver: ${VOLUMES_DRIVER}   
+  redis:
+    driver: ${VOLUMES_DRIVER} 
+

@@ -1,0 +1,3 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+0 */1 * * * curl -k -X GET nginx_todo/api/cron/runFailedJobs >> /var/log/cron.log
