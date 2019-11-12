@@ -52,7 +52,7 @@ services:
           - INSTALL_SUPERVISOR=${INSTALL_SUPERVISOR}
           - WORK_DIR=${APP_CODE_TODO_PATH_CONTAINER}
       volumes:
-          - ./consumers/supervisor/todo.conf:/etc/supervisor/config.d/todo.conf 
+          - ./consumers/supervisor/todo.conf:/etc/supervisor/conf.d/todo.conf 
           - ${APP_CODE_TODO_PATH_HOST}:${APP_CODE_TODO_PATH_CONTAINER}   
       expose:
         - "9000"
