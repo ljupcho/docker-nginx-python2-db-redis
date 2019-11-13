@@ -1,3 +1,4 @@
 Django==1.11
 mysqlclient
-Celery==4.0
+redis==3.2.0
+celery==4.2
